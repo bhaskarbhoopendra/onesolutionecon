@@ -18,7 +18,7 @@ import * as bcrypt from 'bcrypt';
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
-  @Post()
+  @Post('/register')
   async create(@Body() createAdminDto: CreateAdminDto) {
     try {
       const hashedPassword: string = await bcrypt?.hash(
@@ -32,6 +32,31 @@ export class AdminController {
     } catch (error) {
       throw new HttpException(
         ' user with email already exists',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  @Post('/login')
+  async login(@Body() createAdminDto: CreateAdminDto) {
+    try {
+      const foundUser = await this.adminService.getByEmail(
+        createAdminDto.email,
+      );
+      const isPasswordMatching = await bcrypt.compare(
+        createAdminDto.password,
+        foundUser.password,
+      );
+      if (!isPasswordMatching) {
+        throw new HttpException(
+          'wrong credential Provided',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    } catch (error) {
+      console.log({ error });
+      throw new HttpException(
+        ' user with email not found',
         HttpStatus.BAD_REQUEST,
       );
     }
