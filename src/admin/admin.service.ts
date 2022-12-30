@@ -18,7 +18,6 @@ export class AdminService {
   ) {}
 
   async create(createAdminDto: CreateAdminDto) {
-    console.log({ createAdminDto });
     return await this.adminRepository.save(createAdminDto);
   }
 
