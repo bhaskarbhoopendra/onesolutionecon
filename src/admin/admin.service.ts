@@ -22,8 +22,8 @@ export class AdminService {
     return await this.adminRepository.save(createAdminDto);
   }
 
-  findAll() {
-    return `This action returns all admin`;
+  async findAll() {
+    return await this.adminRepository.find({});
   }
 
   findOne(id: number) {
