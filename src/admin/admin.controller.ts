@@ -15,8 +15,9 @@ import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { Req, Res } from '@nestjs/common/decorators';
+import { Req, Res, UseGuards } from '@nestjs/common/decorators';
 import { Response, Request } from 'express';
+import { AuthGuard } from 'src/middleware/auth.guards';
 
 @Controller('admin')
 export class AdminController {
@@ -79,6 +80,7 @@ export class AdminController {
   }
 
   @Get('user')
+  @UseGuards(AuthGuard)
   async adminUser(@Req() request: Request) {
     try {
       const userCookie = request.cookies['jwt'];
