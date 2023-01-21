@@ -25,8 +25,8 @@ export class AdminService {
     return await this.adminRepository.find({});
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} admin`;
+  async findOne(id: number) {
+    return await this.adminRepository.findOne({ where: { id } });
   }
 
   update(id: number, updateAdminDto: UpdateAdminDto) {

@@ -8,27 +8,36 @@ import {
   Delete,
   HttpException,
   HttpStatus,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
+import { Req, Res } from '@nestjs/common/decorators';
+import { Response, Request } from 'express';
 
 @Controller('admin')
 export class AdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(
+    private jwtService: JwtService,
+    private readonly adminService: AdminService,
+  ) {}
 
-  @Post('/register')
+  @Post('register')
   async create(@Body() createAdminDto: CreateAdminDto) {
     try {
       const hashedPassword: string = await bcrypt?.hash(
         createAdminDto.password,
         10,
       );
-      return await this.adminService.create({
+      const user = await this.adminService.create({
         ...createAdminDto,
         password: hashedPassword,
       });
+      const { password, ...result } = user;
+      return result;
     } catch (error) {
       throw new HttpException(
         ' user with email already exists',
@@ -37,8 +46,11 @@ export class AdminController {
     }
   }
 
-  @Post('/login')
-  async login(@Body() createAdminDto: CreateAdminDto) {
+  @Post('login')
+  async login(
+    @Body() createAdminDto: CreateAdminDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
     try {
       const foundUser = await this.adminService.getByEmail(
         createAdminDto.email,
@@ -53,12 +65,32 @@ export class AdminController {
           HttpStatus.BAD_REQUEST,
         );
       }
+      const jwtToken = await this.jwtService.signAsync({ id: foundUser.id });
+      response.cookie('jwt', jwtToken);
+      const { password, ...result } = foundUser;
+      return result;
     } catch (error) {
       console.log({ error });
       throw new HttpException(
         ' user with email not found',
         HttpStatus.BAD_REQUEST,
       );
+    }
+  }
+
+  @Get('user')
+  async adminUser(@Req() request: Request) {
+    try {
+      const userCookie = request.cookies['jwt'];
+      const data = await this.jwtService.verify(userCookie);
+      if (!data) {
+        throw new UnauthorizedException();
+      }
+      const foundAdmin = await this.adminService.findOne(data?.id);
+      const { password, ...result } = foundAdmin;
+      return result;
+    } catch (error) {
+      throw new UnauthorizedException();
     }
   }
 
