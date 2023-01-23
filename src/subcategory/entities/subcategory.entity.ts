@@ -1,23 +1,26 @@
-import { Subcategory } from 'src/subcategory/entities/subcategory.entity';
+import { Category } from 'src/category/entities/category.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToMany,
+  JoinColumn,
+  ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity()
-export class Category {
+@Entity({ name: 'sub_categories' })
+export class Subcategory {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
   name: string;
 
-  @OneToMany(() => Subcategory, (Subcategory) => Subcategory.id)
-  subCategory: Subcategory[];
+  @ManyToOne(() => Category, (Category) => Category.id, { cascade: true })
+  @JoinColumn()
+  category: Category;
 
   @CreateDateColumn({
     type: 'timestamp',

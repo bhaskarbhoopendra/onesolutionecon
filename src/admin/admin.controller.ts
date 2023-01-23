@@ -71,7 +71,6 @@ export class AdminController {
       const { password, ...result } = foundUser;
       return result;
     } catch (error) {
-      console.log({ error });
       throw new HttpException(
         ' user with email not found',
         HttpStatus.BAD_REQUEST,
