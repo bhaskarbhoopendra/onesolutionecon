@@ -6,6 +6,8 @@ import { AdminModule } from './admin/admin.module';
 import { ConfigModule } from '@nestjs/config';
 import { CategoryModule } from './category/category.module';
 import { SubcategoryModule } from './subcategory/subcategory.module';
+import { ProductModule } from './product/product.module';
+import { ColorsModule } from './colors/colors.module';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { SubcategoryModule } from './subcategory/subcategory.module';
     ConfigModule.forRoot(),
     CategoryModule,
     SubcategoryModule,
+    ProductModule,
+    ColorsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
